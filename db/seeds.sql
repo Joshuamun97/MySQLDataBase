@@ -4,7 +4,7 @@ VALUES  (1, "Electrical"),
         (3, "ITS");
 
 INSERT INTO roles (id, title, salary,)
-VALUES  (1, "Project Manager", 120,000),
-        (2, "General Foreman", 90,000),
-        (3, "Foreman", 75,000);
+VALUES  (1, "Project Manager", 120),
+        (2, "General Foreman", 90),
+        (3, "Foreman", 75);
 
