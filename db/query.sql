@@ -1,4 +1,1 @@
-SELECT department.name, roles.id
-FROM department
-LEFT JOIN roles ON department.name = roles.department_id
-ORDER BY department.id;
+SELECT roles.id, roles.title, department.name AS department, roles.salary FROM roles LEFT JOIN department on roles.department_id = department.id;
