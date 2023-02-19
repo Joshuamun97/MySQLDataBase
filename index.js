@@ -34,28 +34,28 @@ function mainFunction() {
             }
         ]).then(answers => {
             if (answers.choice === 'View Employees') {
-                viewAllEmployees(); 
+                viewAllEmployees();
                 console.log("yurp")
             }
             else if (answers.choice === 'Add an Employee') {
-                addEmployee(); 
+                addEmployee();
             }
             else if (answers.choice === 'Update Role') {
-                updateEmployee(); 
+                updateEmployee();
             }
             else if (answers.choice === 'View Roles') {
                 viewAllRoles();
             }
             else if (answers.choice === 'Add a Role') {
-                addRole(); 
+                addRole();
             }
             else if (answers.choice === 'View Departments') {
-                viewAllDepartments(); 
+                viewAllDepartments();
             }
             else if (answers.choice === 'Add a Department') {
-                addDepartment(); 
+                addDepartment();
             }
-            else if(answers.choice === 'Goodbye') {
+            else if (answers.choice === 'Goodbye') {
                 console.log('deuces')
                 connection.end();
             }
@@ -72,35 +72,65 @@ function viewAllEmployees() {
 };
 
 function addEmployee() {
-    // let employee = res.map(employee => ({name: employee.employee_name, value: employee.employee_id }));
-inquirer
-    .prompt([
-        {
-            type: 'prompt',
-            name: 'first_name',
-            message: 'What is the first name of the employee you would like to add?'
-        },
-        {
-            type: 'prompt',
-            name: 'last_name',
-            message: 'What is the last name of the employee you would like to add?'
-        },
-        {
-            type: 'list',
-            name: 'role',
-            message: 'What is the title of the new employee?',
-            choices: 'roles'
-        },
-        {
-            type: 'list',
-            name: 'manager',
-            message: 'What is the manager of the new employee?',
-            choices: 'employee'
-        }
-    ])
+    inquirer
+        .prompt([
+            {
+                type: 'prompt',
+                name: 'first_name',
+                message: 'What is the first name of the employee you would like to add?'
+            },
+            {
+                type: 'prompt',
+                name: 'last_name',
+                message: 'What is the last name of the employee you would like to add?'
+            },
+            {
+                type: 'list',
+                name: 'role',
+                message: 'What is the title of the new employee?',
+                choices: ['Electrical Foreman', 'Apprentice', 'Journeyman', 'Low Voltage Foreman', 'Low Voltage Technician', 'Low Voltage Senior Technician', 'Low Voltage Fiber Technician', 'ITS Foreman', 'Heavy Machinery Operator', 'ITS Technician']
+            }
+            // {
+            //     type: 'list',
+            //     name: 'manager',
+            //     message: 'What is the manager of the new employee?',
+            //     choices: 'employee'
+            // }
+        ]).then(answers => {
+            const sql = `INSERT INTO roles SET ?`;
+            connection.query(sql, (err, res) => {
+                if (err) throw err;
+                console.table('\n', res, '\n');
+                mainFunction();
+            });
+
+        });
 };
 
 function updateEmployee() {
+    const sql = `SELECT * FROM roles ORDER BY id ASC;`;
+    connection.query(sql, (err, res) => {
+        if (err) throw err;
+        console.table('\n', res, '\n');
+        mainFunction();
+    });
+    let roles = res.map(role => ({ name: role.title, value: role.role_id }));
+    let employee = res.map(employee => ({ name: employee.first_name + ' ' + employee.last_name, value: employee.employee_id }));
+    inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'employee',
+                message: 'What employee would you like to update?',
+                choices: 'employee'
+            },
+            {
+                type: 'list',
+                name: 'role',
+                message: 'What will this employees new role be?',
+                choices: 'roles'
+            }
+        ])
 
 };
 
@@ -110,7 +140,7 @@ function viewAllRoles() {
         if (err) throw err;
         console.table('\n', res, '\n');
         mainFunction();
-    }); 
+    });
 };
 
 function addRole() {
