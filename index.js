@@ -72,39 +72,48 @@ function viewAllEmployees() {
 };
 
 function addEmployee() {
-    inquirer
-        .prompt([
-            {
-                type: 'prompt',
-                name: 'first_name',
-                message: 'What is the first name of the employee you would like to add?'
-            },
-            {
-                type: 'prompt',
-                name: 'last_name',
-                message: 'What is the last name of the employee you would like to add?'
-            },
-            {
-                type: 'list',
-                name: 'role',
-                message: 'What is the title of the new employee?',
-                choices: ['Electrical Foreman', 'Apprentice', 'Journeyman', 'Low Voltage Foreman', 'Low Voltage Technician', 'Low Voltage Senior Technician', 'Low Voltage Fiber Technician', 'ITS Foreman', 'Heavy Machinery Operator', 'ITS Technician']
-            }
-            // {
-            //     type: 'list',
-            //     name: 'manager',
-            //     message: 'What is the manager of the new employee?',
-            //     choices: 'employee'
-            // }
-        ]).then(answers => {
-            const sql = `INSERT INTO roles SET ?`;
-            connection.query(sql, (err, res) => {
-                if (err) throw err;
-                console.table('\n', res, '\n');
-                mainFunction();
-            });
+    const sql = `SELECT * FROM roles, employee;`;
+    connection.query(sql, (err, res) => {
+        if (err) throw err;
+        let roles = res.map(role => ({ name: role.title, value: role.id }));
+        let employee = res.map(employee => ({ name: employee.title, value: employee.id }));
 
-        });
+
+        inquirer
+            .prompt([
+                {
+                    type: 'prompt',
+                    name: 'first_name',
+                    message: 'What is the first name of the employee you would like to add?'
+                },
+                {
+                    type: 'prompt',
+                    name: 'last_name',
+                    message: 'What is the last name of the employee you would like to add?'
+                },
+                {
+                    type: 'list',
+                    name: 'role_id',
+                    message: 'What is the title of the new employee?',
+                    choices: roles
+                },
+                {
+                    type: 'list',
+                    name: 'manager_id',
+                    message: 'What is the manager of the new employee?',
+                    choices: employee
+                }
+            ]).then(answers => {
+                console.log(answers)
+                const sql = `INSERT INTO employee SET ?`;
+                connection.query(sql, answers, (err, res) => {
+                    if (err) throw err;
+                    console.table('\n', res, '\n');
+                    mainFunction();
+                });
+
+            });
+    });
 };
 
 function updateEmployee() {
