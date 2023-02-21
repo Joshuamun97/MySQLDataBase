@@ -76,7 +76,7 @@ function addEmployee() {
     connection.query(sql, (err, res) => {
         if (err) throw err;
         let roles = res.map(role => ({ name: role.title, value: role.id }));
-        let employee = res.map(employee => ({ name: employee.title, value: employee.id }));
+        let employee = res.map(employee => ({ name: employee.manager_id, value: employee.id }));
 
 
         inquirer
@@ -103,6 +103,7 @@ function addEmployee() {
                     message: 'What is the manager of the new employee?',
                     choices: employee
                 }
+                // Currently not properly loading role. By default it is giving a 1 every time to role ID instead of the actual role id that is tied to that specific role
             ]).then(answers => {
                 console.log(answers)
                 const sql = `INSERT INTO employee SET ?`;
@@ -115,32 +116,41 @@ function addEmployee() {
             });
     });
 };
-
+// updateEmployee currently giving unknown column error 'employee' in 'field list' when on .then
 function updateEmployee() {
-    const sql = `SELECT * FROM roles ORDER BY id ASC;`;
+    const sql = `SELECT * FROM roles, employee;`;
     connection.query(sql, (err, res) => {
         if (err) throw err;
         console.table('\n', res, '\n');
-        mainFunction();
-    });
-    let roles = res.map(role => ({ name: role.title, value: role.role_id }));
-    let employee = res.map(employee => ({ name: employee.first_name + ' ' + employee.last_name, value: employee.employee_id }));
-    inquirer
-        .prompt([
-            {
-                type: 'list',
-                name: 'employee',
-                message: 'What employee would you like to update?',
-                choices: 'employee'
-            },
-            {
-                type: 'list',
-                name: 'role',
-                message: 'What will this employees new role be?',
-                choices: 'roles'
-            }
-        ])
+        // Do i need a for loop here? Currently repeating each name ten times
+        let roles = res.map(role => ({ name: role.title, value: role.role_id }));
+        let employee = res.map(employee => ({ name: employee.first_name + ' ' + employee.last_name, value: employee.employee_id }));
+        inquirer
+            .prompt([
+                {
+                    type: 'list',
+                    name: 'employee',
+                    message: 'What employee would you like to update?',
+                    choices: employee
+                },
+                {
+                    type: 'list',
+                    name: 'roles',
+                    message: 'What will this employees new role be?',
+                    choices: roles
+                }
+                // Maybe because its currently not doing anything with the information passed?
+            ]).then(answers => {
+                console.log(answers)
+                const sql = `UPDATE roles SET ?`;
+                connection.query(sql, answers, (err, res) => {
+                    if (err) throw err;
+                    console.table('\n', res, '\n');
+                    mainFunction();
+                });
+            });
 
+    });
 };
 
 function viewAllRoles() {
